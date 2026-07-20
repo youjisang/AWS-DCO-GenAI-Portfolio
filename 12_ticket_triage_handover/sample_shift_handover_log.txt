@@ -1,0 +1,176 @@
+========================================
+DCO Shift Handover Log
+Date: 2026-07-20
+Shift: Night → Day (23:00 ~ 07:00)
+Outgoing Engineer: Kim Jisoo (Night Shift)
+Incoming Engineer: Lee Minjun (Day Shift)
+========================================
+
+[SUMMARY]
+Total Active Tickets: 5
+Escalated: 2
+Monitoring: 2
+Resolved during shift: 1
+
+----------------------------------------
+TICKET: DCO-TKT-2026-0041
+Time Opened: 2026-07-19 23:14
+Device: CORE-SW-01 (Spine Layer, Rack A01)
+Reported By: Automated Alert (CloudWatch)
+Status: Open / Escalated
+----------------------------------------
+Phenomenon:
+  - CORE-SW-01의 Gi0/0 ~ Gi0/3 포트에서 CRC Error 급증
+  - 23:10 기준 CRC count: 14,872 (임계값 500 초과)
+  - 동일 포트에서 Input Error 및 Runts 동시 발생
+  - 같은 랙(A01) 내 서버 4대 (SRV-A01-N01 ~ N04) 트래픽 드롭 감지
+
+Current Service Impact:
+  - SRV-A01-N01 ~ N04 서버에서 패킷 손실 발생 (ping loss 30~40%)
+  - 해당 서버 운영 팀(플랫폼팀)에 영향 통보 완료
+  - 이중화 경로 없음 (CORE-SW-01 단일 업링크 구간)
+
+Repeat/Ongoing:
+  - 동일 포트(Gi0/0)에서 3일 전(2026-07-17) 동일 CRC 이벤트 발생 기록 있음
+  - 당시 재부팅으로 임시 해소, 근본 원인 미확인
+
+Actions Taken:
+  - 23:30 Network Engineering Team 에스컬레이션 완료
+  - 케이블 교체 여부 현장 확인 요청 (아직 미완료)
+  - show interfaces Gi0/0 ~ Gi0/3 캡처 첨부 (Ticket 내 첨부)
+
+Missing Info:
+  - 현장 케이블/SFP 실물 점검 결과 미수령
+  - 상위 스위치(CORE-SW-00) 측 카운터 미확인
+  - 재부팅 이전 대비 트래픽 패턴 비교 데이터 없음
+
+----------------------------------------
+TICKET: DCO-TKT-2026-0042
+Time Opened: 2026-07-20 00:47
+Device: TOR-SW-B03 (Rack B03 Top-of-Rack)
+Reported By: On-call Engineer (자체 발견)
+Status: Open / Monitoring
+----------------------------------------
+Phenomenon:
+  - TOR-SW-B03 Gi1/0/24 포트 Link Down 감지
+  - 연결 장비: SRV-B03-N08 (Storage 서버)
+  - 포트 UP/DOWN 반복: 00:45 ~ 01:02 사이 총 7회 Flapping
+  - 01:02 이후 완전 Link Down 상태 유지 중
+
+Current Service Impact:
+  - SRV-B03-N08 스토리지 서버 네트워크 연결 단절
+  - 해당 서버 연결 스토리지(NAS-B03-01) 접근 불가
+  - 상위 애플리케이션 영향 여부 미확인
+
+Repeat/Ongoing:
+  - 최근 2주 내 동일 장비/포트 이력 없음
+
+Actions Taken:
+  - 01:10 Onsite Cabling Team 현장 점검 요청 (대기 중)
+  - 반대쪽 서버(SRV-B03-N08) NIC 상태 확인 요청 (대기 중)
+  - 임시 조치: 인접 포트(Gi1/0/25)로 케이블 이동 시도 여부 미결정
+
+Missing Info:
+  - 현장 점검팀 도착 시간 미확정
+  - SRV-B03-N08 NIC 물리 상태(LED, 드라이버) 미확인
+  - 케이블 불량 vs. 포트 불량 vs. NIC 불량 원인 미분류
+
+----------------------------------------
+TICKET: DCO-TKT-2026-0043
+Time Opened: 2026-07-20 01:55
+Device: PDU-C02-A (Rack C02 PDU A)
+Reported By: DCIM 자동 알림
+Status: Open / Monitoring
+----------------------------------------
+Phenomenon:
+  - PDU-C02-A Phase A 전류값 이상: 정상 범위 16A 초과 → 현재 19.2A
+  - PDU-C02-A에 연결된 서버 8대 (SRV-C02-N01 ~ N08) 운영 중
+  - Phase B, C는 정상 범위 내
+  - 알람 발생 후 현재까지 전류값 유지 (감소 없음)
+
+Current Service Impact:
+  - 서버 8대 운영 중 (현재까지 서버 다운 없음)
+  - PDU 회로 차단기 동작 시 랙 내 전 서버 영향 가능성 있음
+
+Repeat/Ongoing:
+  - 동일 PDU의 Phase A에서 1주일 전(2026-07-13) 17.5A 기록 이력 있음
+  - 당시 별도 조치 없이 자연 감소하여 종료
+
+Actions Taken:
+  - 02:05 Facilities Team 통보 완료
+  - 전력 부하 분산 가능 여부 검토 요청 (미완료)
+  - 서버 8대 실시간 모니터링 유지 중
+
+Missing Info:
+  - Phase A 부하 증가 원인 미파악 (신규 서버 투입 여부 등)
+  - 차단기 트립 임계값 정확한 수치 미확인
+  - Facilities Team 현장 조치 가능 시간 미확정
+
+----------------------------------------
+TICKET: DCO-TKT-2026-0044
+Time Opened: 2026-07-20 03:22
+Device: SRV-D01-N12 (Rack D01, 서버 12번)
+Reported By: 서버 운영팀 요청
+Status: Open / Pending Vendor
+----------------------------------------
+Phenomenon:
+  - SRV-D01-N12 팬 모듈 #3 장애 알람 (Fan Fault LED 점등)
+  - IPMI 로그 상 FAN3_SPEED = 0 RPM 기록
+  - 서버 내부 온도 상승: CPU 온도 78°C (정상 상한 70°C 초과)
+  - 현재 서버는 운영 중이나 CPU Throttling 발생
+
+Current Service Impact:
+  - SRV-D01-N12 상의 워크로드 성능 저하 (CPU Throttling)
+  - 상위 서비스 SLA 영향 여부 서버 운영팀 확인 요청 중
+
+Repeat/Ongoing:
+  - 동일 서버 팬 장애 이력 없음 (신규 장애)
+  - 팬 모듈 #3 설치일: 2024-03-15 (2년 4개월 사용)
+
+Actions Taken:
+  - 03:35 하드웨어 벤더(Vendor-X) 교체 부품 요청 티켓 오픈
+  - 서버 운영팀에 워크로드 이관 검토 요청 전달
+  - 온도 모니터링 주기 5분 → 1분으로 단축
+
+Missing Info:
+  - 벤더 부품 도착 예정 시간 미확인
+  - 워크로드 이관 가능 여부 서버 운영팀 응답 대기 중
+  - 현재 온도 상승 속도 추세 분석 미완료
+
+----------------------------------------
+TICKET: DCO-TKT-2026-0045
+Time Opened: 2026-07-20 05:10
+Device: COOLING-UNIT-E01 (Rack Row E 냉각 유닛)
+Reported By: DCIM 자동 알림
+Status: Open / Escalated
+----------------------------------------
+Phenomenon:
+  - COOLING-UNIT-E01 냉각 용량 저하 감지
+  - 공급 냉기 온도: 정상 18°C → 현재 24°C (6°C 상승)
+  - Row E 전체 랙 입구 온도 평균 27°C (권장 상한 25°C 초과)
+  - Row E 내 랙 총 12개, 서버 총 96대 운영 중
+
+Current Service Impact:
+  - Row E 랙 12개 서버 96대 전체 과열 위험 노출
+  - 현재까지 서버 다운 없으나 지속 시 다운 위험
+  - 일부 서버(SRV-E03-N04, SRV-E07-N11) CPU 온도 경고 알람 발생
+
+Repeat/Ongoing:
+  - COOLING-UNIT-E01은 6개월 전 예방정비 완료 기록 있음
+  - 과거 유사 냉각 저하 이력 없음
+
+Actions Taken:
+  - 05:15 Facilities Team 긴급 에스컬레이션 완료
+  - Row E 서버 순차 전원 차단 여부 판단 대기 중
+  - 인접 냉각 유닛(COOLING-UNIT-E02) 용량 증가 가능 여부 확인 중 (미완료)
+
+Missing Info:
+  - COOLING-UNIT-E01 내부 장애 원인 미파악 (냉매 부족 vs. 컴프레서 고장 등)
+  - E02 유닛의 현재 가용 냉각 용량 미확인
+  - 서버 순차 셧다운 시 비즈니스 영향도 미확인 (서비스 팀 응답 대기)
+
+========================================
+END OF HANDOVER LOG
+Next Shift Engineer: Lee Minjun
+Special Notes: TKT-0041과 TKT-0045는 최우선 모니터링 필요
+========================================
